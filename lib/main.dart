@@ -1,5 +1,9 @@
+import 'dart:ui';
+
 import 'package:ecommerce_app/constants/app_colors.dart';
-import 'package:ecommerce_app/widgets/banner_slider.dart';
+import 'package:ecommerce_app/screens/category_screen.dart';
+import 'package:ecommerce_app/screens/home_screen.dart';
+import 'package:ecommerce_app/screens/product_list_screen.dart';
 import 'package:ecommerce_app/widgets/product_items.dart';
 import 'package:flutter/material.dart';
 
@@ -7,177 +11,128 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  int selectedBottomNavigation = 0;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: AppColors.backgroundScaffoldColor,
-        body: SafeArea(
-          child: Center(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 44, right: 44, bottom: 32,top: 20),
+        appBar: AppBar(),
+        body: IndexedStack(
+          index: selectedBottomNavigation ,
+          children: getScreens(),
+        ),
+        bottomNavigationBar: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 40,sigmaY: 40),
+            child: BottomNavigationBar(
+              onTap: (int index){
+                setState(() {
+                  selectedBottomNavigation = index;
+                });
+              },
+              currentIndex: selectedBottomNavigation,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor:Colors.transparent ,
+              elevation: 0,
+              selectedLabelStyle:const TextStyle(
+                fontWeight: FontWeight.bold,fontSize: 10,
+                color: AppColors.blue,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,fontSize: 10,
+                color: Colors.black,
+              ),
+
+              items: [
+                BottomNavigationBarItem(
+                  icon:Image.asset('assets/images/icon_profile.png') ,
+                  activeIcon: Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
                     child: Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(15),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 16,),
-                          Image.asset('assets/images/icon_search.png'),
-                          SizedBox(width: 10,),
-                          Expanded(
-                              child: Text(
-                            'search products',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 16,
-                              color: AppColors.grey,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )),
-                          Image.asset('assets/images/icon_apple_blue.png'),
-                          SizedBox(width: 16,),
+                      child: Image.asset('assets/images/icon_profile_active.png'),
+                      decoration:const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: AppColors.blue,
+                              blurRadius: 20,
+                              spreadRadius: -7,
+                              offset: Offset(0.0, 13)
+                          )
                         ],
                       ),
                     ),
                   ),
+                  label: 'Profile',
                 ),
-                SliverToBoxAdapter(
-                  child: BannerSlider(),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 44, right: 44, bottom: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Category',
-                          style: TextStyle(
-                              color: AppColors.grey,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 44),
-                    child: SizedBox(
-                      height: 100,
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 10,
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 20),
-                              child: CategoryHorizontalItemList(),
-                            );
-                          })),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 44, right: 44, bottom: 20),
-                    child: Row(
-                      children: [
-                        Image.asset('assets/images/icon_left_categroy.png'),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          'See All',
-                          style: TextStyle(
+                BottomNavigationBarItem(
+                  icon:Image.asset('assets/images/icon_basket.png') ,
+                  activeIcon: Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: Container(
+                      child: Image.asset('assets/images/icon_basket_active.png'),
+                      decoration:const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
                               color: AppColors.blue,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Text(
-                          'Best Selling',
-                          style: TextStyle(
-                              color: AppColors.grey,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                              blurRadius: 20,
+                              spreadRadius: -7,
+                              offset: Offset(0.0, 13)
+                          )
+                        ],
+                      ),
                     ),
                   ),
+                  label: 'Basket',
                 ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 44),
-                    child: SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 10,
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 20),
-                              child: ProductItems(),
-                            );
-                          })),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 44, right: 44, bottom: 20, top: 32),
-                    child: Row(
-                      children: [
-                        Image.asset('assets/images/icon_left_categroy.png'),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          'See All',
-                          style: TextStyle(
+                BottomNavigationBarItem(
+                  icon:Image.asset('assets/images/icon_category.png') ,
+                  activeIcon: Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: Container(
+                      child: Image.asset('assets/images/icon_category_active.png'),
+                      decoration:const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
                               color: AppColors.blue,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Text(
-                          'The Most Visited',
-                          style: TextStyle(
-                              color: AppColors.grey,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                              blurRadius: 20,
+                              spreadRadius: -7,
+                              offset: Offset(0.0, 13)
+                          )
+                        ],
+                      ),
                     ),
                   ),
+                  label: 'Category',
                 ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 44),
-                    child: SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 10,
-                          itemBuilder: ((context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 20),
-                              child: ProductItems(),
-                            );
-                          })),
+                BottomNavigationBarItem(
+                  icon:Image.asset('assets/images/icon_home.png') ,
+                  activeIcon: Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: Container(
+                      child: Image.asset('assets/images/icon_home_active.png'),
+                      decoration:const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: AppColors.blue,
+                              blurRadius: 20,
+                              spreadRadius: -7,
+                              offset: Offset(0.0, 13)
+                          )
+                        ],
+                      ),
                     ),
                   ),
+                  label: 'Home',
                 ),
               ],
             ),
@@ -186,49 +141,13 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-}
 
-class CategoryHorizontalItemList extends StatelessWidget {
-  const CategoryHorizontalItemList({
-    super.key,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Stack(
-          alignment: AlignmentDirectional.center,
-          children: [
-            Container(
-              height: 56,
-              width: 56,
-              decoration: ShapeDecoration(
-                  color: Colors.red,
-                  shadows: [
-                    BoxShadow(
-                        color: Colors.red,
-                        blurRadius: 25,
-                        spreadRadius: -12,
-                        offset: Offset(0.0, 15))
-                  ],
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(40),
-                  )),
-            ),
-            Icon(
-              Icons.add,
-              size: 32,
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          'Test',
-          style: TextStyle(fontFamily: 'SB', fontSize: 12),
-        ),
-      ],
-    );
+  List<Widget> getScreens() {
+    return <Widget>[
+     HomeScreen(),
+      CategoryScreen(),
+      ProductListScreen(),
+      CategoryScreen(),
+    ];
   }
 }

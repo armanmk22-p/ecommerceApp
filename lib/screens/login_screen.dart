@@ -101,11 +101,10 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  // BlocBuilder<AuthBloc, AuthState>(
-                  //     builder: ((context, state) {
-                  //       if (state is AuthInitiateState) {
-                  //         return
-                ElevatedButton(
+                  BlocBuilder<AuthBloc, AuthState>(
+                      builder: ((context, state) {
+                        if (state is AuthInitiateState) {
+                          return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 textStyle:
                                 TextStyle(fontSize: 18),
@@ -118,25 +117,25 @@ class LoginScreen extends StatelessWidget {
                                       _passwordTextController.text));
                             },
                             child: Text('login to account'),
-                          // );
-                        // }
-                  //
-                  //       if (state is AuthLoadingState) {
-                  //         return CircularProgressIndicator();
-                  //       }
-                  //
-                  //       if (state is AuthResponseState) {
-                  //         Text widget = Text('');
-                  //         state.reponse.fold((l) {
-                  //           widget = Text(l);
-                  //         }, (r) {
-                  //           widget = Text(r);
-                  //         });
-                  //         return widget;
-                  //       }
-                  //       return Text('someThing went wrong !');
-                  //     })),
-                )],
+                          );
+                        }
+
+                        if (state is AuthLoadingState) {
+                          return CircularProgressIndicator();
+                        }
+
+                        if (state is AuthResponseState) {
+                          Text widget = Text('');
+                          state.reponse.fold((l) {
+                            widget = Text(l);
+                          }, (r) {
+                            widget = Text(r);
+                          });
+                          return widget;
+                        }
+                        return Text('someThing went wrong !');
+                      })),
+                ],
               ),
             ),
           )

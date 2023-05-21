@@ -1,22 +1,32 @@
 import 'dart:ui';
-
 import 'package:ecommerce_app/constants/app_colors.dart';
 import 'package:ecommerce_app/screens/card_screen.dart';
 import 'package:ecommerce_app/screens/category_screen.dart';
 import 'package:ecommerce_app/screens/home_screen.dart';
-import 'package:ecommerce_app/screens/login_screen.dart';
-import 'package:ecommerce_app/screens/product_details_screen.dart';
-import 'package:ecommerce_app/screens/product_list_screen.dart';
 import 'package:ecommerce_app/screens/profile_screen.dart';
-import 'package:ecommerce_app/widgets/product_items.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 
-import 'data/datasource/authentication_datasource.dart';
+
+import 'bloc/basket/baset_event.dart';
+import 'bloc/basket/basket_bloc.dart';
+import 'bloc/category/category_bloc.dart';
+import 'bloc/home/home_bloc.dart';
+import 'data/model/card_item.dart';
 import 'di/di.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(BasketItemAdapter());
+  await Hive.openBox<BasketItem>('CardBox');
+
   await getItInit();
+
+
   runApp(const MyApp());
 }
 
@@ -28,116 +38,101 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int selectedBottomNavigation = 0;
+  int selectedBottomNavigationIndex = 3;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body:LoginScreen(),
+        body: IndexedStack(
+          index: selectedBottomNavigationIndex,
+          children: getScreens(),
+        ),
         bottomNavigationBar: ClipRRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
             child: BottomNavigationBar(
               onTap: (int index) {
                 setState(() {
-                  selectedBottomNavigation = index;
+                  selectedBottomNavigationIndex = index;
                 });
               },
-              currentIndex: selectedBottomNavigation,
+              currentIndex: selectedBottomNavigationIndex,
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.transparent,
               elevation: 0,
               selectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 10,
-                color: AppColors.blue,
-              ),
+                  fontFamily: 'sb', fontSize: 10, color: AppColors.blue),
               unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 10,
-                color: Colors.black,
-              ),
+                  fontFamily: 'sb', fontSize: 10, color: Colors.black),
               items: [
                 BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon_profile.png'),
-                  activeIcon: Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: Container(
-                      child:
-                          Image.asset('assets/images/icon_profile_active.png'),
-                      decoration: const BoxDecoration(
-                        boxShadow: [
+                    icon: Image.asset('assets/images/icon_profile.png'),
+                    activeIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Container(
+                        child: Image.asset(
+                            'assets/images/icon_profile_active.png'),
+                        decoration: const BoxDecoration(boxShadow: [
                           BoxShadow(
                               color: AppColors.blue,
                               blurRadius: 20,
                               spreadRadius: -7,
                               offset: Offset(0.0, 13))
-                        ],
+                        ]),
                       ),
                     ),
-                  ),
-                  label: 'Profile',
-                ),
+                    label: 'حساب کاربری'),
                 BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon_basket.png'),
-                  activeIcon: Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: Container(
-                      child:
-                          Image.asset('assets/images/icon_basket_active.png'),
-                      decoration: const BoxDecoration(
-                        boxShadow: [
+                    icon: Image.asset('assets/images/icon_basket.png'),
+                    activeIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Container(
+                        child:
+                        Image.asset('assets/images/icon_basket_active.png'),
+                        decoration: const BoxDecoration(boxShadow: [
                           BoxShadow(
                               color: AppColors.blue,
                               blurRadius: 20,
                               spreadRadius: -7,
                               offset: Offset(0.0, 13))
-                        ],
+                        ]),
                       ),
                     ),
-                  ),
-                  label: 'Basket',
-                ),
+                    label: 'سبد خرید'),
                 BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon_category.png'),
-                  activeIcon: Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: Container(
-                      child:
-                          Image.asset('assets/images/icon_category_active.png'),
-                      decoration: const BoxDecoration(
-                        boxShadow: [
+                    icon: Image.asset('assets/images/icon_category.png'),
+                    activeIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Container(
+                        child: Image.asset(
+                            'assets/images/icon_category_active.png'),
+                        decoration: const BoxDecoration(boxShadow: [
                           BoxShadow(
                               color: AppColors.blue,
                               blurRadius: 20,
                               spreadRadius: -7,
                               offset: Offset(0.0, 13))
-                        ],
+                        ]),
                       ),
                     ),
-                  ),
-                  label: 'Category',
-                ),
+                    label: 'دسته بندی'),
                 BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon_home.png'),
-                  activeIcon: Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: Container(
-                      child: Image.asset('assets/images/icon_home_active.png'),
-                      decoration: const BoxDecoration(
-                        boxShadow: [
+                    icon: Image.asset('assets/images/icon_home.png'),
+                    activeIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Container(
+                        child:
+                        Image.asset('assets/images/icon_home_active.png'),
+                        decoration: const BoxDecoration(boxShadow: [
                           BoxShadow(
                               color: AppColors.blue,
                               blurRadius: 20,
                               spreadRadius: -7,
                               offset: Offset(0.0, 13))
-                        ],
+                        ]),
                       ),
                     ),
-                  ),
-                  label: 'Home',
-                ),
+                    label: 'خانه'),
               ],
             ),
           ),
@@ -149,9 +144,25 @@ class _MyAppState extends State<MyApp> {
   List<Widget> getScreens() {
     return <Widget>[
       ProfileScreen(),
-      CardScreen(),
-      ProductListScreen(),
-      HomeScreen(),
+      BlocProvider(
+        create: ((context) {
+          var bloc = locator.get<BasketBloc>();
+          bloc.add(BasketFetchFromHiveEvent());
+          return bloc;
+        }),
+        child: CardScreen(),
+      ),
+      BlocProvider(
+        create: (context) => CategoryBloc(),
+        child: CategoryScreen(),
+      ),
+      Directionality(
+        textDirection: TextDirection.rtl,
+        child: BlocProvider(
+          create: (context) => HomeBloc(),
+          child: HomeScreen(),
+        ),
+      )
     ];
   }
 }

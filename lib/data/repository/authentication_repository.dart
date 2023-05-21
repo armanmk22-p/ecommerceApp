@@ -1,23 +1,18 @@
 
-
 import 'package:dartz/dartz.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../di/di.dart';
 import '../../util/api_exception.dart';
 import '../../util/auth_manager.dart';
 import '../datasource/authentication_datasource.dart';
 
 abstract class IAuthRepository {
-
   Future<Either<String, String>> register(String username, String password, String passwordConfirm);
 
   Future<Either<String, String>> login(String username, String password);
 }
 
-
-class AuthenticationRepository extends IAuthRepository {
-
+class AuthencticationRepository extends IAuthRepository {
   final IAuthenticationDatasource _datasource = locator.get();
   final SharedPreferences _sharedPref = locator.get();
 
@@ -25,10 +20,10 @@ class AuthenticationRepository extends IAuthRepository {
   @override
   Future<Either<String, String>> register(String username, String password, String passwordConfirm) async {
     try {
-      await _datasource.register('armanmk2009', '12348625', '12348625');
-      return right('register is done successfully');
+      await _datasource.register('amirhmad801', '12345678', '12345678');
+      return right('ثبت نام انجام شد!');
     } on ApiException catch (ex) {
-      return left(ex.message ?? 'there is no error');
+      return left(ex.message ?? 'خطا محتوای متنی ندارد');
     }
   }
 
@@ -38,9 +33,9 @@ class AuthenticationRepository extends IAuthRepository {
       String token = await _datasource.login(username, password);
       if (token.isNotEmpty) {
         AuthManager.saveToken(token);
-        return right('you are login');
+        return right('شما وارد شده اید');
       } else {
-        return left('something went wrong ');
+        return left('خطایی در ورود پیش آمده! ');
       }
     } on ApiException catch (ex) {
       return left('${ex.message}');

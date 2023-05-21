@@ -1,76 +1,109 @@
-import 'package:flutter/cupertino.dart';
+
+import 'package:ecommerce_app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/category/category_bloc.dart';
+import '../bloc/category/category_event.dart';
+import '../bloc/category/category_state.dart';
+import '../data/model/category.dart';
+import '../widgets/cached_image.dart';
 
-import '../constants/app_colors.dart';
+class CategoryScreen extends StatefulWidget {
+  const CategoryScreen({super.key});
 
-class CategoryScreen extends StatelessWidget {
-  const CategoryScreen({Key? key}) : super(key: key);
+  @override
+  State<CategoryScreen> createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  @override
+  void initState() {
+    BlocProvider.of<CategoryBloc>(context).add(CategoryRequestList());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundScaffoldColor,
       body: SafeArea(
-          child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding:
-                  EdgeInsets.only(left: 44, right: 44, bottom: 32, top: 20),
-              child: Container(
-                height: 46,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(15),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 44, right: 44, bottom: 32),
+                child: Container(
+                  height: 46,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(15),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 16,
+                      ),
+                      Image.asset('assets/images/icon_apple_blue.png'),
+                      const Expanded(
+                        child: Text(
+                          'دسته بندی',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.blue),
+                        ),
+                      )
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                        child: Text(
-                      'Categories',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontSize: 16,
-                        color: AppColors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )),
-                    Image.asset('assets/images/icon_apple_blue.png'),
-                    SizedBox(
-                      width: 16,
-                    ),
-                  ],
-                ),
               ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 44,),
-            sliver:SliverGrid(
-              delegate: SliverChildBuilderDelegate(((context, index) {
-                return Container(
-                  decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.all(Radius.circular(15))),
-                );
-              })),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 20,
-              ),
-            ),
-          )
-        ],
-      )),
+            BlocBuilder<CategoryBloc, CategoryState>(
+                builder: ((context, state) {
+                  if (state is CategoryLoadingState) {
+                    return SliverToBoxAdapter(
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (state is CategoryResponseState) {
+                    return state.response.fold((l) {
+                      return SliverToBoxAdapter(
+                        child: Center(child: Text(l)),
+                      );
+                    }, (r) {
+                      return _listCategory(
+                        list: r,
+                      );
+                    });
+                  }
+                  return SliverToBoxAdapter(
+                    child: Text('error'),
+                  );
+                })),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _listCategory extends StatelessWidget {
+  List<Category>? list;
+  _listCategory({Key? key, required this.list}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 44),
+      sliver: SliverGrid(
+        delegate: SliverChildBuilderDelegate(((context, index) {
+          return CachedImage(imageUrl: list?[index].thumbnail);
+        }), childCount: list?.length ?? 0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 20),
+      ),
     );
   }
 }

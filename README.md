@@ -9,8 +9,9 @@ A new Flutter project.
 ## using Dio for Connecting to Api.
 ## using Hive for LocalData Source.
 ## using Repository Pattern.
-![Uploading Home Screen.png…]()
-![Uploading Category.png…]()
 
+![Home Screen](https://github.com/armanmk22-p/ecommerceApp/assets/118584557/86b0d1c8-8395-4053-bff1-aa8194460e7b)
+
+![Category](https://github.com/armanmk22-p/ecommerceApp/assets/118584557/8e682b69-a324-43d3-ba07-c19d5a8423e6)
 
 
